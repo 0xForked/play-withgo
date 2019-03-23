@@ -1,32 +1,28 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
+
+	"play-with-go/controllers"
 
 	"github.com/gorilla/mux"
 )
 
-func home(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "<h1>Welcome to aasumtro</h1>")
-}
-
-func blog(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "<h1>Welcome to my blog</h1>")
-}
-
-func notFound(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusNotFound)
-	fmt.Fprint(w, "<h1>404</h1>")
-}
-
 func main() {
-	route := mux.NewRouter()
-	route.NotFoundHandler = http.HandlerFunc(notFound)
-	route.HandleFunc("/", home)
-	route.HandleFunc("/blog", blog)
-	http.ListenAndServe(":8080", route)
+	// initialize the route
+	rotuer := mux.NewRouter()
+
+	// call mock
+	controllers.Mock()
+
+	// route handler (endpoints)
+	rotuer.NotFoundHandler = http.HandlerFunc(controllers.NotFoundHandler)
+	rotuer.HandleFunc("/", controllers.Home).Methods("GET")
+	rotuer.HandleFunc("/api/v1/blogs", controllers.GetArticles).Methods("GET")
+	rotuer.HandleFunc("/api/v1/blogs/{id}", controllers.GetArticle).Methods("GET")
+	rotuer.HandleFunc("/api/v1/blogs", controllers.StoreArticle).Methods("POST")
+	rotuer.HandleFunc("/api/v1/blogs/{id}", controllers.UpdateArticle).Methods("PUT")
+	rotuer.HandleFunc("/api/v1/blogs/{id}", controllers.DeleteArticle).Methods("DELETE")
+
+	http.ListenAndServe(":8080", rotuer)
 }
